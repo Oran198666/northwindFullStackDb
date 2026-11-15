@@ -24,7 +24,7 @@ class Dal {
             // Go to DB, send sql, get data, invoke callback:
             this.connection.query(sql, values, (err: QueryError | null, result: QueryResult) => {
 
-                if(err) { // Some error.
+                if (err) { // Some error.
                     reject(err);
                 }
                 else { // All is good.

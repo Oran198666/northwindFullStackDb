@@ -1,17 +1,16 @@
+import cors from "cors";
 import express from "express";
+import expressFileUpload from "express-fileupload";
+import path from "path";
+import { saver } from "smart-saver";
 import { productController } from "./controllers/product-controller";
 import { userController } from "./controllers/user-controller";
+import { employeeController } from "./controllers/employee-controller";
 import { errorMiddleware } from "./middleware/error-middleware";
 import { loggerMiddleware } from "./middleware/logger-middleware";
+import { requestLogMiddleware } from "./middleware/request-log-middleware";
 import { securityMiddleware } from "./middleware/security-middleware";
 import { appConfig } from "./utils/app-config";
-import expressFileUpload from "express-fileupload";
-import { saver } from "smart-saver";
-import { employeeController } from "./controllers/employee-controller";
-import { requestLogMiddleware } from "./middleware/request-log-middleware";
-import path from "path";
-import cors from "cors";
-
 
 class App {
 
@@ -23,15 +22,15 @@ class App {
         // Create our server object:
         const server = express();
 
-
-        server.use(cors({ origin: "http://localhost:5173", credentials: true }));
         // System middleware:
-        server.use(express.json()); // Configure express to create request.body from a given JSON.
-        server.use(expressFileUpload()); // Configure express to create request.files from the request.
+        securityMiddleware.registerRateLimit(server);
+        server.use(express.json());
+        server.use(expressFileUpload());
 
         // Register "before" middleware:
         server.use(loggerMiddleware.logToConsole);
         server.use(requestLogMiddleware.logToDB);
+        server.use(securityMiddleware.preventXss);
         server.use(securityMiddleware.blackList);
 
         // Register controllers:
@@ -40,8 +39,7 @@ class App {
         server.use(employeeController.router);
 
         // Register "after" middleware:
-        server.use(errorMiddleware.routeNotFound);
-        server.use(errorMiddleware.catchAll);
+
 
         // Run server:
         server.listen(appConfig.port, () => console.log("Listening..."));

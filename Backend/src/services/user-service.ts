@@ -4,7 +4,7 @@ import { dal } from "../utils/dal";
 import { cyber } from "../utils/cyber";
 import { CredentialsModel } from "../models/credentials-model";
 import { ClientError } from "../models/client-error";
-import { Role, StatusCode } from "../models/enums";
+import { StatusCode } from "../models/enums";
 
 class UserService {
 
@@ -14,15 +14,14 @@ class UserService {
         // Validation:
         user.validate();
 
-        // Force role - never trust client input:
-        user.roleId = Role.User;
-
-        user.password = cyber.hashPassword(user.password);
+        // TODO item 5: force roleId here
 
         // If email taken:
         if (await this.isEmailTaken(user.email)) {
             throw new ClientError(StatusCode.Conflict, "Email already taken.");
         }
+
+        // TODO item 7: hash the password here
 
         // SQL:
         const sql = "insert into users(firstName, lastName, email, password, roleId) values(?, ?, ?, ?, ?)";
@@ -33,10 +32,7 @@ class UserService {
         user.id = info.insertId!;
 
         // Generate token:
-        const token = cyber.generateToken(user);
-
-        // Return token:
-        return token;
+        return cyber.generateToken(user);
     }
 
     // Login:
@@ -45,23 +41,18 @@ class UserService {
         // Validation:
         credentials.validate();
 
-        // SQL:
-        const sql = "select * from users where email = ? and password = ?";
-        const values = [credentials.email, cyber.hashPassword(credentials.password)];
+        // TODO item 7: fetch by email, then compare the password against the hash
+        const sql = "";
+        const values: any[] = [];
+
         // Execute:
         const users = await dal.execute(sql, values) as UserModel[];
         const user = users[0];
 
-        // If no such user:
-        if (!user) {
-            throw new ClientError(StatusCode.Unauthorized, "Incorrect email or password.");
-        }
+        // TODO item 7: check user exists AND password matches, same error for both
 
         // Generate token:
-        const token = cyber.generateToken(user);
-
-        // Return token:
-        return token;
+        return cyber.generateToken(user);
     }
 
     // Check if email already taken:

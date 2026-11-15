@@ -2,7 +2,14 @@ import express, { Request, Response, Router } from "express";
 import { UserModel } from "../models/user-model";
 import { userService } from "../services/user-service";
 import { StatusCode } from "../models/enums";
+import rateLimit from "express-rate-limit";
 import { CredentialsModel } from "../models/credentials-model";
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { message: "Too many login attempts, try again later." },
+});
 
 class UserController {
 
@@ -12,7 +19,7 @@ class UserController {
     // Constructor - register routes:
     public constructor() {
         this.router.post("/api/register", this.addUser);
-        this.router.post("/api/login", this.login);
+        this.router.post("/api/login", loginLimiter, this.login);
     }
 
     // Add user:

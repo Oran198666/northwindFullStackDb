@@ -3,14 +3,14 @@ import { UserModel } from "../models/user-model";
 import { appConfig } from "../utils/app-config";
 import { jwtDecode } from "jwt-decode";
 import { CredentialsModel } from "../models/credentials-model";
-import { userSlice } from "../redux/user-slice";
+import { userSlice } from "../redux/auth-slice";
 import { store } from "../redux/store";
 
 class UserService {
 
     public constructor() {
 
-        // Get token from local storage: 
+        // Get token from local storage:
         const token = localStorage.getItem("token");
 
         // If we have token - save user in global state:
@@ -19,22 +19,22 @@ class UserService {
             const action = userSlice.actions.initUser(dbUser);
             store.dispatch(action);
         }
-        
+
     }
 
-    // Register new user: 
+    // Register new user:
     public async register(user: UserModel): Promise<void> {
 
-        // Send user to backend: 
+        // Send user to backend:
         const response = await axios.post<string>(appConfig.registerUrl, user);
 
-        // Get JWT token: 
+        // Get JWT token:
         const token = response.data;
 
-        // Extract user: 
+        // Extract user:
         const dbUser = jwtDecode<{ user: UserModel }>(token).user;
 
-        // Send user to global state: 
+        // Send user to global state:
         const action = userSlice.actions.initUser(dbUser);
         store.dispatch(action);
 
@@ -42,19 +42,19 @@ class UserService {
         localStorage.setItem("token", token);
     }
 
-    // Login existing user: 
+    // Login existing user:
     public async login(credentials: CredentialsModel): Promise<void> {
 
-        // Send user to backend: 
+        // Send user to backend:
         const response = await axios.post<string>(appConfig.loginUrl, credentials);
 
-        // Get JWT token: 
+        // Get JWT token:
         const token = response.data;
 
-        // Extract user: 
+        // Extract user:
         const dbUser = jwtDecode<{ user: UserModel }>(token).user;
 
-        // Send user to global state: 
+        // Send user to global state:
         const action = userSlice.actions.initUser(dbUser);
         store.dispatch(action);
 
@@ -62,14 +62,14 @@ class UserService {
         localStorage.setItem("token", token);
     }
 
-    // Logout existing user: 
+    // Logout existing user:
     public logout(): void {
 
-        // Remove user from global state: 
+        // Remove user from global state:
         const action = userSlice.actions.logoutUser();
         store.dispatch(action);
 
-        // Remove token from local storage: 
+        // Remove token from local storage:
         localStorage.removeItem("token");
     }
 }

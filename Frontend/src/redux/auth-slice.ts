@@ -13,9 +13,9 @@ function logoutUser(_currentState: UserModel, _action: Action): UserModel {
     return null!;
 }
 
-// User slice: 
-export const userSlice = createSlice({
-    name: "user-slice",
+// Auth slice:
+export const authSlice = createSlice({
+    name: "auth-slice",
     initialState: null! as UserModel,
     reducers: { initUser, logoutUser }
 });

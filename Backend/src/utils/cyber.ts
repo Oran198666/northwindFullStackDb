@@ -2,23 +2,14 @@ import { UserModel } from "../models/user-model";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { appConfig } from "./app-config";
 import { Role } from "../models/enums";
-import crypto from "crypto";
+
 
 class Cyber {
 
-    // Hash password:
-    public hashPassword(plainText: string): string {
-        return crypto
-            .createHmac("sha512", appConfig.hmacKey)
-            .update(appConfig.hashSalt + plainText)
-            .digest("hex");
-    }
 
     // Generate new token:
     public generateToken(user: UserModel): string {
 
-        //remove password
-        user.password = undefined!;
 
         // Create payload:
         const payload = { user };

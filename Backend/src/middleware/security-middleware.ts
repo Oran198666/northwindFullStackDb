@@ -1,59 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import { StatusCode } from "../models/enums";
-import { cyber } from "../utils/cyber";
-import { ClientError } from "../models/client-error";
 
 class SecurityMiddleware {
 
-    // Short Circuit Middleware:
-    public blackList(request: Request, response: Response, next: NextFunction): void {
-        const denyIpAddresses = ["11.22.33.44", "100.200.3.5"];
-        const userIp = request.ip?.toString()!;
-        if (denyIpAddresses.includes(userIp)) {
-            const message = "You are black listed!";
-            response.status(StatusCode.Forbidden).json({ message });
-        }
-        else {
-            next();
-        }
-    }
 
-    // Verify logged-in:
-    public verifyLoggedIn(request: Request, response: Response, next: NextFunction): void {
-
-        // Extract token: 
-        const authorization = request.headers.authorization; // "Bearer the-token..."
-        const token = authorization?.substring(7);
-
-        // If token is legal:
-        if (cyber.verifyToken(token!)) {
-            next();
-        }
-        else {
-            const err = new ClientError(StatusCode.Unauthorized, "You are not logged in.");
-            next(err); // Go to catchAll middleware.
-        }
-    }
-
-    // Verify admin:
-    public verifyAdmin(request: Request, response: Response, next: NextFunction): void {
-
-        // Extract token: 
-        const authorization = request.headers.authorization; // "Bearer the-token..."
-        const token = authorization?.substring(7);
-
-        // If token is legal and user is admin:
-        if (cyber.verifyAdmin(token!)) {
-            next();
-        }
-        else {
-            const err = new ClientError(StatusCode.Forbidden, "You are not authorized.");
-            next(err); // Go to catchAll middleware.
-        }
-    }
-
-    
 
 }
 
 export const securityMiddleware = new SecurityMiddleware();
+

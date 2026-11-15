@@ -6,12 +6,12 @@ import { UploadedFile } from "express-fileupload";
 // Product Schema:
 const ProductSchema = z.object({
     id: z.number().int().positive().optional(),
-    name: z.string().min(2).max(100),
+    name: z.string().min(2).max(40).regex(/^[^<>]*$/, "Name cannot contain < or >"),
     price: z.number().min(0).max(1000),
     stock: z.number().int().min(0).max(1000),
     imageName: z.string().min(30).max(50).optional(),
     image: z.custom<UploadedFile>().optional(),
-    imageUrl: z.url().optional()
+    imageUrl: z.url().optional(),
 });
 
 // Product Interface (I = Interface):
@@ -45,5 +45,5 @@ export class ProductModel implements IProductModel {
             throw new ClientError(StatusCode.UnprocessableContent, message);
         }
     }
-    
+
 }

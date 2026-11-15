@@ -20,7 +20,6 @@ class Notify {
         this.settings.message = errorExtractor.getMessage(err);
         iziToast.error(this.settings);
     }
-
 }
 
 export const notify = new Notify();
